@@ -1,6 +1,10 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from pathlib import Path
+
+env_path = Path('.') / '.env'
+load_dotenv(dotenv_path=env_path)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 # UPDATE THIS
@@ -57,6 +61,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
 load_dotenv()
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
