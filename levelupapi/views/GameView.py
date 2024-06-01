@@ -38,6 +38,7 @@ class GameView(ViewSet):
             Response -- JSON serialized game instance
         """
         gamer = Gamer.objects.get(uid=request.data["userId"])
+        print("gameType", request.data["gameType"])
         game_type = Game_Type.objects.get(pk=request.data["gameType"])   
 
         game = Game.objects.create(
@@ -78,6 +79,9 @@ class GameView(ViewSet):
 class GameSerializer(serializers.ModelSerializer):
     """JSON serializer for game types
     """
+    number_of_players = serializers.CharField()
+    skill_level = serializers.CharField()  # Add this line
+
     class Meta:
         model = Game
         fields = ('id', 'game_type', 'title', 'maker', 'number_of_players', 'skill_level')
