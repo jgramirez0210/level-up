@@ -21,7 +21,7 @@ from levelupapi.views import GameTypeView, GameView, EventView, register_user, c
 
 router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'gametypes', GameTypeView, 'gametype')
-router.register(r'games', GameView, 'game')
+router.register(r'games', GameView, basename='game')
 router.register(r'events', EventView, 'event')
 
 urlpatterns = [

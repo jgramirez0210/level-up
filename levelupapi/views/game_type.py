@@ -9,13 +9,17 @@ from levelupapi.models import Game_Type
 class GameTypeView(ViewSet):
     """Level up game types view"""
 
-    def retrieve(self, request, pk):
+    def retrieve(self, request, pk=None):
         """Handle GET requests for single game type
-
+    
         Returns:
             Response -- JSON serialized game type
         """
-        game_type = Game_Type.objects.get(pk=pk)
+        game_type = Game_Type.objects.filter(pk=pk).first()
+    
+        if game_type is None:
+            return Response({'message': 'Game type not found.'}, status=status.HTTP_404_NOT_FOUND)
+    
         serializer = GameTypeSerializer(game_type)
         return Response(serializer.data)
 
