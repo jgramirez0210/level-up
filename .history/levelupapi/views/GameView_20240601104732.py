@@ -14,6 +14,10 @@ class GameView(ViewSet):
         Returns:
             Response -- JSON serialized game type
         """
+        gamer = Gamer.objects.filter(uid=request.user.id).first()
+        if gamer is None:
+        # Return a response indicating that the gamer was not found
+            return Response({'message': 'Gamer not found.'}, status=status.HTTP_404_NOT_FOUND)
         game = Game.objects.get(pk=pk)
         serializer = GameSerializer(game)
         return Response(serializer.data)
@@ -32,28 +36,48 @@ class GameView(ViewSet):
         return Response(serializer.data)
         
     def create(self, request):
-        gamer = Gamer.objects.get(uid=request.data["userId"])
-        game_type = Game_Type.objects.get(pk=request.data["game_type"])   
-
+        """Handle POST operations
+    
+        Returns:
+            Response -- JSON serialized game instance
+        """
+        gamer = Gamer.objects.filter(uid=request.user.id).first()
+        
+        # Get the game type from the request data
+        game_type_id = request.data["gameType"]
+    
+        # Get the Game_Type object with the provided id
+        game_type = Game_Type.objects.filter(pk=game_type_id).first()
+    
+        # Check if game_type is None
+        if game_type is None:
+            # Return a response indicating that the game type was not found
+            return Response({'message': 'Game type not found.'}, status=status.HTTP_404_NOT_FOUND)
+    
         game = Game.objects.create(
             title=request.data["title"],
             maker=request.data["maker"],
-            number_of_players=request.data["number_of_players"],
-            skill_level=request.data["skill_level"],
+            number_of_players=request.data["numberOfPlayers"],
+            skill_level=request.data["skillLevel"],
             game_type=game_type,
-            gamer=gamer,
+            gamer=gamer
         )
         serializer = GameSerializer(game)
         return Response(serializer.data)
-     
     def update(self, request, pk):
+        """Handle PUT requests for a game
+
+        Returns:
+        Response -- Empty body with 204 status code
+        """
+
         game = Game.objects.get(pk=pk)
         game.title = request.data["title"]
         game.maker = request.data["maker"]
-        game.number_of_players = request.data.get("number_of_players")
-        game.skill_level = request.data.get("skill_level")
+        game.number_of_players = request.data["numberOfPlayers"]
+        game.skill_level = request.data["skillLevel"]
 
-        game_type = Game_Type.objects.get(pk=request.data.get("game_type"))
+        game_type = Game_Type.objects.get(pk=request.data["gameType"])
         game.game_type = game_type
         game.save()
 
@@ -67,9 +91,6 @@ class GameView(ViewSet):
 class GameSerializer(serializers.ModelSerializer):
     """JSON serializer for game types
     """
-    number_of_players = serializers.CharField()
-    skill_level = serializers.CharField()
-
     class Meta:
         model = Game
         fields = ('id', 'game_type', 'title', 'maker', 'number_of_players', 'skill_level')

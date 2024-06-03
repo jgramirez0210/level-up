@@ -32,28 +32,39 @@ class GameView(ViewSet):
         return Response(serializer.data)
         
     def create(self, request):
+        """Handle POST operations   
+
+        Returns
+            Response -- JSON serialized game instance
+        """
         gamer = Gamer.objects.get(uid=request.data["userId"])
-        game_type = Game_Type.objects.get(pk=request.data["game_type"])   
+        game_type = Game_Type.objects.get(name=request.data["gameType"])
 
         game = Game.objects.create(
             title=request.data["title"],
             maker=request.data["maker"],
-            number_of_players=request.data["number_of_players"],
-            skill_level=request.data["skill_level"],
+            number_of_players=request.data["numberOfPlayers"],
+            skill_level=request.data["skillLevel"],
             game_type=game_type,
-            gamer=gamer,
+            user=request.user
         )
         serializer = GameSerializer(game)
-        return Response(serializer.data)
+        return Response(GameSerializer(game).data)
      
     def update(self, request, pk):
+        """Handle PUT requests for a game
+
+        Returns:
+        Response -- Empty body with 204 status code
+        """
+
         game = Game.objects.get(pk=pk)
         game.title = request.data["title"]
         game.maker = request.data["maker"]
-        game.number_of_players = request.data.get("number_of_players")
-        game.skill_level = request.data.get("skill_level")
+        game.number_of_players = request.data["numberOfPlayers"]
+        game.skill_level = request.data["skillLevel"]
 
-        game_type = Game_Type.objects.get(pk=request.data.get("game_type"))
+        game_type = Game_Type.objects.get(pk=request.data["gameType"])
         game.game_type = game_type
         game.save()
 
@@ -67,9 +78,6 @@ class GameView(ViewSet):
 class GameSerializer(serializers.ModelSerializer):
     """JSON serializer for game types
     """
-    number_of_players = serializers.CharField()
-    skill_level = serializers.CharField()
-
     class Meta:
         model = Game
         fields = ('id', 'game_type', 'title', 'maker', 'number_of_players', 'skill_level')

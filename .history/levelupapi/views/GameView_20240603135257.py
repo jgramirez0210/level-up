@@ -33,7 +33,7 @@ class GameView(ViewSet):
         
     def create(self, request):
         gamer = Gamer.objects.get(uid=request.data["userId"])
-        game_type = Game_Type.objects.get(pk=request.data["game_type"])   
+        game_type = Game_Type.objects.get(pk=request.data["gameType"])   
 
         game = Game.objects.create(
             title=request.data["title"],
@@ -53,7 +53,7 @@ class GameView(ViewSet):
         game.number_of_players = request.data.get("number_of_players")
         game.skill_level = request.data.get("skill_level")
 
-        game_type = Game_Type.objects.get(pk=request.data.get("game_type"))
+        game_type = GameType.objects.get(pk=request.data.get("gameType"))
         game.game_type = game_type
         game.save()
 
