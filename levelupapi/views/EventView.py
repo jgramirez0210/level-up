@@ -25,26 +25,22 @@ class EventView(ViewSet):
             Response -- JSON serialized list of events
         """
         events = Event.objects.all()
-        game = request.query_params.get('game', None)
-        if game is not None:
-            events = events.filter(game_id=game)
-
+        game_id = self.request.query_params.get('gameId', None)
+        if game_id is not None:
+            events = events.filter(game__id=game_id)
         serializer = EventViewSerializer(events, many=True)
         return Response(serializer.data)
     
     def create(self, request):
         """Handle POST operations
-
+    
         Returns:
         Response -- JSON serialized event instance
         """
-        if not request.auth:
-            return Response({'message': 'Must be authenticated to create an event.'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        gamer = Gamer.objects.get(user=request.auth.user)
+        gamer = None 
         game = Game.objects.get(pk=request.data["gameId"])
         organizer = Gamer.objects.get(uid=request.data["userId"])
-
+    
         event = Event.objects.create(
             game=game,
             description=request.data["description"],
@@ -52,9 +48,10 @@ class EventView(ViewSet):
             time=request.data["time"],
             organizer=organizer
         )
-
+    
         serializer = EventViewSerializer(event, context={'request': request})
         return Response(serializer.data)
+    
     def update(self, request, pk):
         """Handle PUT requests for a event
     
