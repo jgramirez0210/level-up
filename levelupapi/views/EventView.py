@@ -25,34 +25,36 @@ class EventView(ViewSet):
             Response -- JSON serialized list of events
         """
         events = Event.objects.all()
-        game = request.query_params.get('game', None)
-        if game is not None:
-            events = events.filter(game_id=game)
-
+        game_id = self.request.query_params.get('gameId', None)
+        if game_id is not None:
+            events = events.filter(game__id=game_id)
         serializer = EventViewSerializer(events, many=True)
         return Response(serializer.data)
     
     def create(self, request):
         """Handle POST operations
-        
+    
         Returns:
-            Response -- JSON serialized event instance
+        Response -- JSON serialized event instance
         """
-        organizer = Gamer.objects.get(uid=request.data["userId"])
+        gamer = None 
         game = Game.objects.get(pk=request.data["gameId"])
-        
+        organizer = Gamer.objects.get(uid=request.data["userId"])
+    
         event = Event.objects.create(
             game=game,
             description=request.data["description"],
             date=request.data["date"],
             time=request.data["time"],
-            organizer = organizer
+            organizer=organizer
         )
+    
         serializer = EventViewSerializer(event, context={'request': request})
         return Response(serializer.data)
+    
     def update(self, request, pk):
         """Handle PUT requests for a event
-
+    
         Returns:
         Response -- Empty body with 204 status code
         """
@@ -61,7 +63,6 @@ class EventView(ViewSet):
         event.description = request.data["description"]
         event.date = request.data["date"]
         event.time = request.data["time"]
-        event.organizer = Gamer.objects.get(pk=request.data["organizer"])
         event.save()
         
         return Response(None, status=status.HTTP_204_NO_CONTENT)
