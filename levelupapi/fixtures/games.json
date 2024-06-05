@@ -1,7 +1,6 @@
 [
   {
     "model": "levelupapi.game",
-    "pk": 1,
     "fields": {
       "game_type": 1,
       "title": "Chess",
@@ -13,7 +12,6 @@
   },
   {
     "model": "levelupapi.game",
-    "pk": 2,
     "fields": {
       "game_type": 2,
       "title": "Monopoly",
@@ -25,7 +23,6 @@
   },
   {
     "model": "levelupapi.game",
-    "pk": 3,
     "fields": {
       "game_type": 3,
       "title": "Poker",
@@ -37,7 +34,6 @@
   },
   {
     "model": "levelupapi.game",
-    "pk": 4,
     "fields": {
       "game_type": 2,
       "title": "Scrabble",

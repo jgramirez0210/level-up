@@ -6,6 +6,8 @@ __pycache__/
 node_modules/
 .history/
 .env
+db.sqlite3
+*.pyc
 # C extensions
 *.so
 
