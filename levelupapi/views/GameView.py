@@ -32,9 +32,11 @@ class GameView(ViewSet):
         return Response(serializer.data)
         
     def create(self, request):
-        gamer = Gamer.objects.get(uid=request.data["userId"])
+        uid = request.data["userId"]
+        gamer, created = Gamer.objects.get_or_create(uid=uid)
+    
         game_type = Game_Type.objects.get(pk=request.data["game_type"])   
-
+    
         game = Game.objects.create(
             title=request.data["title"],
             maker=request.data["maker"],
