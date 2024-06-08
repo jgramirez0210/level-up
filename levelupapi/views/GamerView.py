@@ -14,6 +14,15 @@ class GamerView(ViewSet):
         serializer = GamerSerializer(queryset, many=True)
         return Response(serializer.data)
 
+    def retrieve(self, request, pk=None):
+        """Handle GET requests for single gamer """
+        try:
+            gamer = Gamer.objects.get(pk=pk)
+            serializer = GamerSerializer(gamer, many=False)
+            return Response(serializer.data)
+        except Gamer.DoesNotExist:
+            return Response({'message': 'Gamer does not exist.'}, status=404)
+
     @classmethod
     def get_extra_actions(cls):
         return []
@@ -29,4 +38,4 @@ class GamerSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Gamer
-        fields = ('id', 'bio')
+        fields = ('id', 'bio', 'uid')

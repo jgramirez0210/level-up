@@ -21,15 +21,16 @@ class EventView(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def list(self, request):
-        """Handle GET requests to get all events
-        Returns:
-            Response -- JSON serialized list of events
-        """
+        """Handle GET requests to events resource"""
         events = Event.objects.all()
-        game_id = self.request.query_params.get('gameId', None)
-        if game_id is not None:
-            events = events.filter(game__id=game_id)
-        serializer = EventViewSerializer(events, many=True)
+
+        uid = request.META['HTTP_AUTHORIZATION']
+        gamer = Gamer.objects.get(uid=uid)
+
+        for event in events:
+            event.joined = len(EventGamer.objects.filter(gamer=gamer, event=event)) > 0
+
+        serializer = EventViewSerializer(events, many=True, context={'request': request})
         return Response(serializer.data)
 
     def create(self, request):
@@ -74,8 +75,6 @@ class EventView(viewsets.ModelViewSet):
     def signup(self, request, pk):
         """Post request for a user to sign up for an event"""
     
-        print('data', request.data)  # print the request data
-    
         organizer = Gamer.objects.get(id=request.data["userId"])
         event = Event.objects.get(pk=pk)
         attendee = EventGamer.objects.create(
@@ -87,6 +86,7 @@ class EventView(viewsets.ModelViewSet):
             time=timezone.now().time()
         )
         return Response({'message': 'Gamer added'}, status=status.HTTP_201_CREATED)
+    
     @action(methods=['delete'], detail=True)
     def leave(self, request, pk):
         """Delete request for a user to leave an event"""
@@ -97,9 +97,8 @@ class EventView(viewsets.ModelViewSet):
         attendee.delete()
 
         return Response(None, status=status.HTTP_204_NO_CONTENT)
+    
 class EventViewSerializer(serializers.ModelSerializer):
     """JSON serializer for event types"""
-    class Meta:
-        model = Event
-        fields = ('id', 'game', 'description', 'date', 'time', 'organizer')
-        
+    model = Event
+    fields = ('id', 'game', 'organizer', 'description', 'date', 'time', 'joined')
