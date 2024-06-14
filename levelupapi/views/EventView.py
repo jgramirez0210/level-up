@@ -1,15 +1,18 @@
+from django.shortcuts import get_object_or_404
+from rest_framework.decorators import action
 from django.http import HttpResponseServerError
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import serializers, status
 from levelupapi.models import Event, Gamer, Game, EventGamer
 from rest_framework.decorators import action
+from django.db.models import Count
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 
-
 class EventView(viewsets.ModelViewSet):
     """Level up event types view"""
+    queryset = Event.objects.all()
 
     def retrieve(self, request, pk):
         """Handle GET requests for single event type
@@ -21,12 +24,15 @@ class EventView(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def list(self, request):
-        """Handle GET requests to events resource"""
+        """Handle GET requests to get all events
+        Returns:
+            Response -- JSON serialized list of events
+        """
+        
         events = Event.objects.all()
-
         uid = request.META['HTTP_AUTHORIZATION']
         gamer = Gamer.objects.get(uid=uid)
-
+         
         for event in events:
             event.joined = len(EventGamer.objects.filter(gamer=gamer, event=event)) > 0
 
@@ -40,7 +46,9 @@ class EventView(viewsets.ModelViewSet):
         """
         gamer = None 
         game = Game.objects.get(pk=request.data["gameId"])
-        organizer = Gamer.objects.get(uid=request.data["userId"])
+        uid = request.data["userId"]
+
+        organizer = Gamer.objects.get(uid=uid)
 
         event = Event.objects.create(
             game=game,
@@ -71,34 +79,42 @@ class EventView(viewsets.ModelViewSet):
         event.delete()
         return Response({}, status=status.HTTP_204_NO_CONTENT)
 
-    @action(methods=['post'], detail=True)
+
+    @action(methods=['post', 'put'], detail=True)
     def signup(self, request, pk):
         """Post request for a user to sign up for an event"""
-    
-        organizer = Gamer.objects.get(id=request.data["userId"])
+        
+        gamer = Gamer.objects.get(uid=request.data["userId"])
         event = Event.objects.get(pk=pk)
         attendee = EventGamer.objects.create(
-            organizer=organizer,
-            event=event,
-            game_id=event.game_id,
-            game_type_id=event.game.game_type_id,
-            date=timezone.now(),
-            time=timezone.now().time()
+            gamer=gamer,
+            event=event
         )
         return Response({'message': 'Gamer added'}, status=status.HTTP_201_CREATED)
     
     @action(methods=['delete'], detail=True)
     def leave(self, request, pk):
-        """Delete request for a user to leave an event"""
+        """Handle DELETE requests to leave an event"""
+        # Check if 'userId' is in request.data
+        if 'userId' not in request.data:
+            return Response({'message': 'userId is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        organizer = Gamer.objects.get(id=request.data["userId"])
-        event = Event.objects.get(pk=pk)
-        attendee = EventGamer.objects.get(organizer=organizer, event=event)
-        attendee.delete()
+        try:
+            gamer = Gamer.objects.get(uid=request.data["userId"])
+            event = Event.objects.get(pk=pk)
 
-        return Response(None, status=status.HTTP_204_NO_CONTENT)
-    
+            attendee = EventGamer.objects.get(gamer=gamer, event=event)
+            attendee.delete()
+
+            return Response({'message': 'Gamer removed'}, status=status.HTTP_204_NO_CONTENT)
+        except Gamer.DoesNotExist:
+            return Response({'message': 'Gamer does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+        except Event.DoesNotExist:
+            return Response({'message': 'Event does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+        except EventGamer.DoesNotExist:
+            return Response({'message': 'Gamer is not registered for this event.'}, status=status.HTTP_404_NOT_FOUND)
 class EventViewSerializer(serializers.ModelSerializer):
     """JSON serializer for event types"""
-    model = Event
-    fields = ('id', 'game', 'organizer', 'description', 'date', 'time', 'joined')
+    class Meta:
+        model = Event
+        fields = ['id', 'game', 'organizer', 'description', 'date', 'time', 'joined']

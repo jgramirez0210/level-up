@@ -3,16 +3,8 @@
       "model": "levelupapi.gamer",
       "pk": 1,
       "fields": {
-          "uid": 1,
-          "bio": "Me"
+          "uid": "T4r4GagFtNhgC87I8bDcr78WUtZ2",
+          "bio": "Gedeon.dev"
       }
-  },
-  {
-    "model": "levelupapi.gamer",
-    "pk": 2,
-    "fields": {
-        "uid": 2,
-        "bio": "You"
-    }
-}
+  }
 ]
