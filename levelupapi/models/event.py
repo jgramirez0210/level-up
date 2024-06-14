@@ -1,10 +1,9 @@
-import uuid
 from django.db import models
 from .gamer import Gamer
 from .game import Game
 
 class Event(models.Model):
-  id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  id = models.AutoField(primary_key=True)
   game = models.ForeignKey(Game, on_delete=models.CASCADE)
   description = models.CharField(max_length=50)
   date = models.DateField()

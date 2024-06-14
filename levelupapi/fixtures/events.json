@@ -2,7 +2,7 @@
   {
     "model": "levelupapi.event",
     "fields": {
-      "game": 4,
+      "game": 2,
       "description": "Dummy Event 1",
       "date": "2022-01-01",
       "time": "12:00",
@@ -13,7 +13,7 @@
     "model": "levelupapi.event",
 
     "fields": {
-      "game": 4,
+      "game": 3,
       "description": "Dummy Event 2",
       "date": "2022-01-02",
       "time": "13:00",
