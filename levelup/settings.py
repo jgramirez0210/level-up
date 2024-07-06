@@ -36,7 +36,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
 ]
 TEMPLATES = [
     {
@@ -66,3 +65,12 @@ DATABASES = {
 load_dotenv()
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+}
+# At the end of your settings.py file, add the USE_TZ setting
+
+# Use timezone-aware datetimes.
+USE_TZ = True
