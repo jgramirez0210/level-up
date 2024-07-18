@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from levelupapi.models import Event, Gamer
+from levelupapi.models import Event, Gamer, EventGamer, Game
 
 # Define the serializer outside of the EventView class
 class EventViewSerializer(serializers.ModelSerializer):
@@ -41,18 +41,6 @@ class EventView(viewsets.ModelViewSet):
             Response -- JSON serialized list of events
         """
         events = Event.objects.all()
-        # Assuming the gamer's ID is passed as a query parameter now instead of in the body
-        gamer_id = request.query_params.get("id", None)
-        
-        if gamer_id is not None:
-            try:
-                gamer = Gamer.objects.get(pk=gamer_id)  # Use pk to filter by ID
-            except Gamer.DoesNotExist:
-                raise Http404("Gamer not found.")
-        
-            for event in events:
-                event.joined = len(EventGamer.objects.filter(gamer=gamer, event=event)) > 0
-        
         serializer = EventViewSerializer(events, many=True, context={'request': request})
         return Response(serializer.data)
     
@@ -100,7 +88,7 @@ class EventView(viewsets.ModelViewSet):
             Response -- JSON serialized event instance
         """
         game = Game.objects.get(pk=request.data["gameId"])
-        organizer_id = request.data["organizerId"] 
+        organizer_id = request.data["userId"] 
     
         organizer = Gamer.objects.get(pk=organizer_id)  
     
@@ -109,7 +97,7 @@ class EventView(viewsets.ModelViewSet):
             description=request.data["description"],
             date=request.data["date"],
             time=request.data["time"],
-            organizer=organizer
+            organizer_id=organizer_id
         )
     
         serializer = EventViewSerializer(event, context={'request': request})
@@ -118,15 +106,17 @@ class EventView(viewsets.ModelViewSet):
     def update(self, request, pk):
         """Handle PUT requests for an event
         Returns:
-            Response -- Empty body with 204 status code
+            Response -- Empty body with 204 status code or 404 if event does not exist
         """
-        event = Event.objects.get(pk=pk)
-        event.description = request.data["description"]
-        event.date = request.data["date"]
-        event.time = request.data["time"]
-        event.save()
-
-        return Response(None, status=status.HTTP_204_NO_CONTENT)
+        try:
+            event = Event.objects.get(pk=pk)
+            event.description = request.data["description"]
+            event.date = request.data["date"]
+            event.time = request.data["time"]
+            event.save()
+            return Response(None, status=status.HTTP_204_NO_CONTENT)
+        except Event.DoesNotExist:
+            return Response({'message': 'Event does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
     def destroy(self, request, pk):
         try:
