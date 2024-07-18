@@ -4,4 +4,7 @@
       "--django-settings-module=levelup.settings",
   ],
   "AllAutocomplete.showCurrentDocument": false,
+  "cSpell.ignoreWords": [
+    "Pipenv"
+  ],
 }
