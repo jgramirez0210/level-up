@@ -52,7 +52,7 @@ Follow these steps to set up and run the project:
 3. Select the correct Python Interpreter:
     ```sh
     Python (version)(`file_name_server_randomString`:Pipenv) ~.\virtualenvs\sec...
-    ```  
+    ```  s
 
 4. Open Terminal to Start Server:
     ```sh
@@ -95,7 +95,7 @@ Follow these steps to set up and run the project:
 - ![ERD](assets/erd.png "Screenshot 2024-07-17") 
 - [API Documentation](https://documenter.getpostman.com/view/29856352/2sA3kSo3i8)
 
-### BUIT WITH 
+### BUILT WITH  
 - React
 - Django
 - SQL
