@@ -52,7 +52,7 @@ Follow these steps to set up and run the project:
 3. Select the correct Python Interpreter:
     ```sh
     Python (version)(`file_name_server_randomString`:Pipenv) ~.\virtualenvs\sec...
-    ```  s
+    ```
 
 4. Open Terminal to Start Server:
     ```sh
