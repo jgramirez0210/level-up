@@ -2,6 +2,7 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 from pathlib import Path
+import django_on_heroku
 
 env_path = Path('.') / '.env'
 load_dotenv(dotenv_path=env_path)
@@ -70,7 +71,11 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ),
 }
-# At the end of your settings.py file, add the USE_TZ setting
 
-# Use timezone-aware datetimes.
 USE_TZ = True
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = "/static/"
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
+django_on_heroku.settings(locals())
